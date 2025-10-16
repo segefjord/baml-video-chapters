@@ -1,0 +1,9 @@
+@import 'tailwindcss';
+
+html {
+  background: #e9f2f6;
+  background-image: linear-gradient(90deg, #cfd9df 0%, #e2ebf0 100%);
+  /* https://grabient.com/HQJgnArANKk+1gGYIBYZKQdg0kMA2ARiJggA5yywCpVgwskojhyQqlgtig?style=linearGradient&steps=7&angle=90 */
+
+  /* background: linear-gradient(90deg, rgba(164, 116, 81, 1.000) 0.000%, rgba(156, 152, 129, 1.000) 16.667%, rgba(115, 160, 157, 1.000) 33.333%, rgba(59, 137, 154, 1.000) 50.000%, rgba(9, 91, 121, 1.000) 66.667%, rgba(0, 40, 71, 1.000) 83.333%, rgba(0, 1, 22, 1.000) 100.000%) */
+}
