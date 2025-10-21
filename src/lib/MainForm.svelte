@@ -1,6 +1,9 @@
 <script lang="ts">
   import "@macfja/svelte-persistent-runes"
   import Groq from 'groq-sdk'
+  import dedent from 'dedent'
+
+  import { autoHeightTextarea } from "$lib/utils/proxy/attachments"
 
   import { onMount } from "svelte";
   onMount(async function() {
@@ -13,7 +16,7 @@
     dotPulse.register()
   })
 
-  import DropZone from "$lib/components/DropZone.svelte";
+  import DropZone from "$lib/components/DropZone.svelte"
   
   import TextLoader from "$lib/components/TextLoader.svelte"
   import BigButton from '$lib/components/BigButton.svelte'
@@ -26,13 +29,19 @@
   import { mockEndpoint } from '$lib/mock'
   const whisperFakeEndpoint = mockEndpoint(whisper)
   
-  import { processVideo } from "$lib/ffmpeg";
+  import { processVideo } from "$lib/ffmpeg"
   import type { ProcessVideoResult } from '$lib/ffmpeg'
+
+  import mergeWhisperResults from "$lib/clientSide/mergeWhisperResults"
+  import chunkSegments from "$lib/clientSide/chunkSegments"
+  import { promptifySegment } from "$lib/clientSide/promptify"
 
   let GROQ_API_KEY = $persist(undefined, 'groq_api_key')
 
-  let prompt = $persist('', 'prompt')
+  let prompt: string = $persist('', 'prompt')
+  let smoothTextarea: boolean = $state(false)
 
+  let ta2: string = $state('')
 
   let files: FileList | undefined = $state()
 
@@ -55,9 +64,10 @@
     finishedGenerating = false
     if(!audioChunksPromise) return
     const audioChunks = (await audioChunksPromise)?.chunks
+    console.log(audioChunks)
     const groq = new Groq({ apiKey: GROQ_API_KEY, dangerouslyAllowBrowser: true })
-    if(!audioChunks) throw new Error("No audio chunks");
-    if(!groq) throw new Error("Failed to start Groq client");
+    if(!audioChunks) throw new Error("No audio chunks")
+    if(!groq) throw new Error("Failed to start Groq client")
 
     resultPromise = Promise.all(audioChunks.map(async(chunk)=>{
       // const whisperPromise = groq.audio.transcriptions.create({
@@ -79,114 +89,34 @@
     if (whisperResults.length !== audioChunks.length)
       throw new Error("Whisper request count doesn't match audio chunk count")
     
-    const mergedWhisperResults: Groq.Audio.TranscriptionMerged = {
-      ...whisperResults[0],
-      x_groq: [whisperResults[0].x_groq]
-    }
-
-    for (let i=1; i<whisperResults.length; i++) {
-      const chunk = audioChunks[i]
-      const result = whisperResults[i]
-      const previous = whisperResults[i-1]
-      const lastId = previous.segments[previous.segments.length-1].id
-
-      mergedWhisperResults.x_groq.push(result.x_groq)
-      mergedWhisperResults.duration += result.duration
-      mergedWhisperResults.text += result.text
-
-      for(const segment of result.segments) {
-        segment.id += lastId+1
-        segment.start += chunk.start
-        segment.end += chunk.start
-        mergedWhisperResults.segments.push(segment)
-      }
-    }
-
-    function chunkSegments(
-      segments: Groq.Audio.TranscriptionSegment[],
-      N=200, overlap=50
-    ): (Groq.Audio.TranscriptionSegment[])[] {
-      const segmentChunks = []
-      for (let i=0; i<segments.length-N; i+=N) {
-        segmentChunks.push(
-          segments.slice(i, i+N+overlap)
-        )
-      }
-      const left = (segments.length % N)-overlap
-      const lastChunk = segmentChunks.length-1
-      segmentChunks[lastChunk] = segmentChunks[lastChunk].concat(
-        segments.slice(segments.length-left, segments.length)
-      )
-      return segmentChunks
-    }
-
+    const mergedWhisperResults = mergeWhisperResults(whisperResults, audioChunks)
     const videoParts = chunkSegments(mergedWhisperResults.segments)
     for (const segments of videoParts) {
-      const first = segments[0]
-      const last = segments[segments.length-1]
-      const video_part = `
-Video-part duration: ${Math.round(last.end - first.start)} seconds
-From T=${first.id} to T=${last.id}:
-\`\`\`
-...
-${segments.map(x=>`T=${x.id} "${x.text.trim()}"`).join('\n')}
-...
-\`\`\`
-      `.trim()
-      const context = `
-# About the video
-Title: "Context Engineering lessons from Manus - 🦄 #18"
-By: BoundaryML, startup that builds BAML, a made up DSL for prompt and context engineering.
-      `.trim()
-      const instrcutions = `
-# User query
-Suggest 3 chapters
-      `.trim()
-      // console.log(await b.FindChapters(context, instrcutions, video_part))
+      const video_part = promptifySegment(segments)
+      const context = dedent(`
+        # About the video
+        ${prompt}
+      `).trim()
+      const instructions = dedent(`
+        # User query
+        Suggest 3 chapters
+      `).trim()
+      const res = await fetch('api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'GROQ_API_KEY': GROQ_API_KEY || "",
+        },
+        body: JSON.stringify({video_part, context, instructions})
+      })
+      console.log(res)
     }
 
-
-
-    // console.log(mergedWhisperResults.segments.map(x=>x.text.trim()).join('\n'))
-
-    // const transcriptPrompt = []
-    // for (const [i, segment] of mergedWhisperResults.segments.entries()) {
-    //   if (!segment?.text) continue
-    //   transcriptPrompt.push(`@T=${i+1} "${segment.text.trim()}"`)
-    // }
-    // console.log(transcriptPrompt.join('\n'))
-
     finishedGenerating = true
-    // console.log(whisperResults)
   }
-
-
-
-  // $effect(async ()=> {
-  //   if(files) {
-
-  //     for (const videoFile of files) {
-  //       const blobURL = URL.createObjectURL(videoFile)
-  //       let audioChunks = await processVideo(blobURL)
-
-  //       const results = await Promise.all(audioChunks.map(
-  //         async function(audioFile){
-            
-  //         }
-  //       ))
-  //       console.log(results.join('\n'))
-  //     }
-  //   }
-  // })
-
-
-  $effect(()=>{
-    console.log("audioChunksPromise", audioChunksPromise)
-  })
-  
 </script>
 
-<form class="mt-12" action="">
+<form class="mt-5" action="">
   <label for="groq-api-key">Groq API key</label>
   <div class="field" class:secret={Boolean(GROQ_API_KEY)}>
     <input
@@ -200,7 +130,7 @@ Suggest 3 chapters
     <div class="secret-mask hidden">● ● ● ● ● ● ● ● ●</div>
   </div>
 
-  <label class="mt-5" for="video-file">Drop video</label>
+  <label class="mt-3" for="video-file">Drop video</label>
   <DropZone
     icon={VideoFileIcon}
     promise={audioChunksPromise}
@@ -237,8 +167,19 @@ Suggest 3 chapters
   </DropZone>
   
   <label for="prompt" class="mt-4">Prompt <span class="ml-1 text-gray-600">(Optional)</span></label>
-  <textarea id="prompt" name="prompt" rows="2" bind:value={prompt}></textarea>
-  <p class="ml-1 mt-2 explainerText">Write some keywords and spelling details</p>
+  <textarea id="prompt" name="prompt" {@attach autoHeightTextarea([prompt]) }
+    bind:value={prompt}
+    rows=3
+    data-maxRows=12
+    data-scrollOnMax
+    data-scrollWindowDown
+    oninput={(e: InputEventInit) => {
+      smoothTextarea = e.inputType === 'deleteContentBackward'
+      setTimeout(() => { smoothTextarea = false }, 1)
+    }}
+    class:smoothTextarea
+  ></textarea>
+  <p class="ml-1 mt-1.5 explainerText">Write some keywords and spelling details</p>
 
   <div class="mt-6 -ml-3.5">
     <div class="ml-0.5 flex items-center">
@@ -329,7 +270,7 @@ Suggest 3 chapters
   {#if resultPromise}
     <div class="ml-1">
       {#await resultPromise}
-        <div class="mt-6 text-indigo-500">
+        <div class="mt-6 -ml-2 text-indigo-500">
           <l-mirage
             size="120"
             speed="10"
@@ -403,14 +344,20 @@ Suggest 3 chapters
 
 
 	textarea {
-		@apply block w-full px-3 py-1.5 -outline-offset-1;
-		@apply text-base text-gray-900;
-		@apply rounded-lg outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500;
+    @apply mt-1;
+		@apply block w-full px-3 pt-2 pb-3 -outline-offset-1;
+		@apply text-xs text-gray-800;
+		@apply rounded-xl outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600;
+    @apply rounded-br-3xl;
     background: linear-gradient(
       --alpha(white / 90%) 0.1rem,
       --alpha(white / 50%) 1.5rem,
       --alpha(white / 30%) 100%
     );
+
+    &.smoothTextarea {
+      transition: height 80ms;
+    }
 	}
 
 	.explainerText {

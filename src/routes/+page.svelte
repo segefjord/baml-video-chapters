@@ -22,30 +22,41 @@
     <header class="text-gray-800">
       <div class="flex items-center">
         <a href="https://docs.boundaryml.com/guide/introduction/what-is-baml" target="_blank">
-          <img class="w-[4rem]" height="auto" src="/logos/baml-lamb-white.webp" alt="BAML Lamb Logo">
+          <img
+            class="w-[4rem]" height="auto"
+            src="/logos/baml-lamb-white.webp" alt="BAML Lamb Logo"
+            draggable="false"
+          >
         </a>
         <div class="ml-1">
           <a href="https://boundaryml.com" target="_blank">
-            <img class="mt-1 ml-2 h-[2rem]" src="/logos/boundary-black-big.svg" alt="BoundaryML Logo">
+            <img
+              class="mt-1 ml-2 h-[2rem]"
+              src="/logos/boundary-black-big.svg" alt="BoundaryML Logo"
+              draggable="false"
+            >
           </a>
           <h1 class="ml-2 text-2xl"><span class="font-bold">BAML</span> Video Chapters</h1>
         </div>
       </div>
-      <div class="mt-5 flex items-center">
-        <p class="text-sm font-black tracking-tight mr-1">
-          Powered by:
+      <div class="mt-5 ml-1">
+        <div class="flex items-center">
+          <p class="text-sm font-black tracking-tight mr-1">
+            Powered by:
+          </p>
+          {#each poweredBy as {img, alt, size, space} }
+            <img src={img} {alt} draggable="false" style={`
+              height: ${1.6*(size/100)}rem;
+              margin-left: ${0.32+space}rem;
+            `}>
+          {/each}
+        </div>
+        <p class="mt-1 text-xs font-medium text-gray-400">
+          Crafted with 0% vibes and 100% artisanry.
         </p>
-        {#each poweredBy as {img, alt, size, space} }
-          <img src={img} {alt} style={`
-            height: ${1.6*(size/100)}rem;
-            margin-left: ${0.32+space}rem;
-          `}>
-        {/each}
       </div>
-      <p class="mt-1 text-xs font-medium text-gray-400">
-        Crafted with 0% vibes and 100% artisanry.
-      </p>
     </header>
+    <!-- <Test /> -->
     <MainForm />
   </div>
 </main>

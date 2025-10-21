@@ -28,6 +28,7 @@
 		"@ffmpeg/util": "^0.12.2",
 		"@hazycora/vite-plugin-svelte-svg": "^2.4.3",
 		"@macfja/svelte-persistent-runes": "^1.1.0",
+		"dedent": "^1.7.0",
 		"dotenv": "^17.2.3",
 		"groq-sdk": "^0.33.0",
 		"ldrs": "^1.1.7",

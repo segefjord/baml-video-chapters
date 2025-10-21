@@ -21,7 +21,7 @@ export interface ProcessVideoResult {
 
 function returnAudio(data: FileData, container: string): AudioData {
   const mime_type: BlobPropertyBag = { type: mime.getType(container) ?? undefined }
-  const blob = new Blob([data], mime_type)
+  const blob = new Blob([data as BlobPart], mime_type)
   const file = new File([blob], `audio.${container}`, mime_type)
 
   let mbSize = ((data.length) / 1024) / 1024
@@ -55,12 +55,12 @@ export async function processVideo(videoURL: string): Promise<ProcessVideoResult
   await ffmpeg.writeFile('video', await fetchFile(videoURL))
   await ffmpeg.exec([
     '-i', 'video',
-  ]);
+  ])
   let [hours, minutes, seconds] = duration.split(',')[0].split('Duration')[1].split(':').filter(Boolean).map((x: string) => parseFloat(x.trim()))
   duration = (hours*60*60) + (minutes*60) + seconds/60 // seconds duration
   
   audioCodec = audioCodec?.split('Audio: ')[1].split(' ')[0]
-  if(!audioCodec?.split) throw new Error("No audio found");
+  if(!audioCodec?.split) throw new Error("No audio found")
   let container = ({
     aac: 'm4a',
     mp4a: 'm4a',
@@ -81,7 +81,7 @@ export async function processVideo(videoURL: string): Promise<ProcessVideoResult
     '-vn', // strip video
     '-c', 'copy',
     `output.${container}`
-  ]);
+  ])
 
   // console.log(container, mime.getType(container))
 
@@ -117,7 +117,7 @@ export async function processVideo(videoURL: string): Promise<ProcessVideoResult
       '-f', 'segment', // use the segment muxer
       '-segment_time', `${chunkSeconds}`,
       `part%03d.${container}` // part000.mp4, part001.mp4, part002.mp4 ...
-    ]);
+    ])
 
 
     const chunks = []
