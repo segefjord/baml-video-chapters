@@ -5,20 +5,15 @@
 
 &nbsp;
 
-<!-- This is cringe! -->
-<!-- [![My Skills](https://skillicons.dev/icons?i=wasm,svelte,tailwind&theme=light)](https://skillicons.dev) -->
 
-Content text
+## BAML AI Generated Chapters for Videos
 
-## Headline
+Bring your own token (at your own risk!) and generate timestamped
+chapters ready to paste into YouTube etc.
 
-Content text
-
-- List: items!
-- Yes!
-
-<!-- ## Headline 2 -->
-
-<!-- You can find our documentation on our -->
-<!-- [website](https://codesandbox.io/docs/learn/introduction/overview) -->
-
+- [`ffmpeg.wasm`](https://ffmpegwasm.netlify.app) extracts audio from your media file locally
+- OpenAI Whisper transcribes it (via Groq)
+- BAML functions
+- Bulit with Svelte!
+- Utilities will be contributed to [`svelte-put`](http://svelte-put.vnphanquang.com) or [`Runed`](https://runed.dev)
+- (When I finish writing them)
