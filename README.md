@@ -1,10 +1,12 @@
-<p align="center">
-  <img src="./.github/assets/gh-social.png" height="300px">
-</p>
+<!-- <p align="center">
+  
+</p> -->
+<img src="./.github/assets/gh-social.png" height="300px">
 
 &nbsp;
 
-[![My Skills](https://skillicons.dev/icons?i=wasm,svelte,tailwind&theme=light)](https://skillicons.dev)
+<!-- This is cringe! -->
+<!-- [![My Skills](https://skillicons.dev/icons?i=wasm,svelte,tailwind&theme=light)](https://skillicons.dev) -->
 
 Content text
 
