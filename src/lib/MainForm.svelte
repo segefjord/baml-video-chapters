@@ -1,7 +1,15 @@
 <script lang="ts">
+  // import { whisper, baml, chapters } from '$lib/mockData'
+  // import { mockEndpoint } from '$lib/mock'
+  // const whisperFakeEndpoint = mockEndpoint(whisper)
+  // const bamlFakeEndpoint = mockEndpoint([baml])
+
   import "@macfja/svelte-persistent-runes"
   import Groq from 'groq-sdk'
-  import dedent from 'dedent'
+
+  import { copy, type CopyDetail } from '@svelte-put/copy'
+  import { toast } from 'svelte-sonner'
+  import { initTooltip, type TooltipProps } from 'svelte-pops'
 
   import { autoHeightTextarea } from "$lib/utils/proxy/attachments"
 
@@ -17,35 +25,36 @@
   })
 
   import DropZone from "$lib/components/DropZone.svelte"
+  import { onPageDrop } from "./components/DropZonePage.svelte"
   
   import TextLoader from "$lib/components/TextLoader.svelte"
   import BigButton from '$lib/components/BigButton.svelte'
   import GenerateIcon from '$lib/assets/icons/solar/media/clapperboard.svg?component'
   import VideoFileIcon from '$lib/assets/icons/solar/media/video-playlist.svg?component'
+  import UploadFileIcon from '$lib/assets/icons/solar/upload.svg?component'
 
   import StopButton from '$lib/components/StopButton.svelte'
 
-  import { whisper } from '$lib/mockData'
-  import { mockEndpoint } from '$lib/mock'
-  const whisperFakeEndpoint = mockEndpoint(whisper)
+  import type { Chapter } from '../routes/api/generate/types'
   
-  import { processVideo } from "$lib/ffmpeg"
-  import type { ProcessVideoResult } from '$lib/ffmpeg'
+  import { processVideo, type ProcessVideoResult} from "$lib/ffmpeg"
 
-  import mergeWhisperResults from "$lib/clientSide/mergeWhisperResults"
-  import chunkSegments from "$lib/clientSide/chunkSegments"
-  import { promptifySegment } from "$lib/clientSide/promptify"
+  // -------------------------------------------------------------------
 
   let GROQ_API_KEY = $persist(undefined, 'groq_api_key')
 
   let prompt: string = $persist('', 'prompt')
   let smoothTextarea: boolean = $state(false)
 
-  let ta2: string = $state('')
-
   let files: FileList | undefined = $state()
+  
+  onPageDrop(function(data, target) {
+    if (target.name === 'video-file') {
+      files = data.files
+    }
+  })
 
-  let audioChunksPromise = $derived.by(function() {
+  let audioPromise = $derived.by(function() {
     if(files) {
       for (const videoFile of files) {
         const blobURL = URL.createObjectURL(videoFile)
@@ -55,90 +64,119 @@
     else return null
   })
 
-  let resultPromise: Promise<Groq.Audio.Transcription[]> | undefined = $state()
+  let generationPromise: Promise<[any, Chapter[]]> | undefined = $state()
   let finishedGenerating = $state(false)
 
   async function onclick(e: MouseEvent) {
     e.preventDefault()
-    resultPromise = undefined
+    generationPromise = undefined
     finishedGenerating = false
-    if(!audioChunksPromise) return
-    const audioChunks = (await audioChunksPromise)?.chunks
-    console.log(audioChunks)
-    const groq = new Groq({ apiKey: GROQ_API_KEY, dangerouslyAllowBrowser: true })
-    if(!audioChunks) throw new Error("No audio chunks")
-    if(!groq) throw new Error("Failed to start Groq client")
 
-    resultPromise = Promise.all(audioChunks.map(async(chunk)=>{
-      // const whisperPromise = groq.audio.transcriptions.create({
-      //   file: chunk.audio.file,
-      //   model: "whisper-large-v3-turbo",
-      //   // prompt: "Specify context or spelling", // Optional
-      //   response_format: "verbose_json",
-      //   timestamp_granularities: ['segment'], // can also take 'word'
-      //   language: "en", // Optional
-      //   temperature: 0.0, // Optional
-      // })
-      const whisperPromise = whisperFakeEndpoint(5000)
+    // @ts-ignore
+    if(!audioPromise) return toast.warning('Start by uploading media', { icon: UploadFileIcon })
+
+    const processedAudio = await audioPromise
+    console.log(processedAudio.chunks)
+    const groq = new Groq({ apiKey: GROQ_API_KEY, dangerouslyAllowBrowser: true })
+    if(!processedAudio.chunks) console.warn("No audio chunks")
+    if(!groq) console.warn("Failed to start Groq client")
+
+    const whisperChunksPromise = Promise.all(processedAudio.chunks.map(async(chunk)=>{
+      const whisperPromise = groq.audio.transcriptions.create({
+        file: chunk.audio.file,
+        model: "whisper-large-v3-turbo",
+        // prompt: "Specify context or spelling", // Optional
+        response_format: "verbose_json",
+        timestamp_granularities: ['segment'], // can also take 'word'
+        language: "en", // Optional
+        temperature: 0.0, // Optional
+      })
+      // const whisperPromise = whisperFakeEndpoint(0)
       return whisperPromise
     }))
 
-    const whisperResults = await resultPromise
-
-    if (whisperResults.length < 1) throw new Error("Whisper failed")
-    if (whisperResults.length !== audioChunks.length)
-      throw new Error("Whisper request count doesn't match audio chunk count")
-    
-    const mergedWhisperResults = mergeWhisperResults(whisperResults, audioChunks)
-    const videoParts = chunkSegments(mergedWhisperResults.segments)
-    for (const segments of videoParts) {
-      const video_part = promptifySegment(segments)
-      const context = dedent(`
-        # About the video
-        ${prompt}
-      `).trim()
-      const instructions = dedent(`
-        # User query
-        Suggest 3 chapters
-      `).trim()
-      const res = await fetch('api/generate', {
+    const bamlPromise = whisperChunksPromise.then((whisperChunks) => {
+      return fetch('api/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'GROQ_API_KEY': GROQ_API_KEY || "",
+          'Authorization': GROQ_API_KEY || "",
         },
-        body: JSON.stringify({video_part, context, instructions})
-      })
-      console.log(res)
-    }
+        body: JSON.stringify({whisperChunks, processedAudio, prompt})
+      }).then(r => r.json())
+    })
 
+    generationPromise = Promise.all([whisperChunksPromise, bamlPromise])
+
+    await generationPromise
+    // console.log(await bamlPromise)
     finishedGenerating = true
+  }
+
+  let copyTrigger: HTMLButtonElement | undefined = $state()
+
+  const apiKeyTooltipProps: TooltipProps = {
+    onMouse: true,
+    tweenDuration: 150,
+    hideMS: 80,
+    modalOffset: 25,
+    modalShift: 10,
+    class: "rounded-xl bg-[white]/60 backdrop-blur-sm border-1 border-[white] shadow-xl",
   }
 </script>
 
+{#snippet apiKeyTooltip()}
+  <div class="py-1.5 px-2.5">
+    <p class="font-semibold text-gray-800">Know the risks</p>
+    <p class="text-xs text-gray-500 tracking-tight">
+      Always use low-privilege API keys
+      <br>
+      for <span class="font-mono text-gray-800 font-medium">bring-your-own-key</span> apps.
+    </p>
+  </div>
+{/snippet}
+
+{#snippet fileNamePreview(cutoff = 25)}
+  {@const name = files?.[0]?.name}
+  {#if (!name)}
+    your video
+  {:else}
+    <span class="text-xs tracking-tighter font-bold text-gray-800">
+      {name.substring(0, cutoff).trim()}...
+    </span>
+  {/if}
+{/snippet}
+
 <form class="mt-5" action="">
-  <label for="groq-api-key">Groq API key</label>
-  <div class="field" class:secret={Boolean(GROQ_API_KEY)}>
-    <input
-      class="secret"
-      id="groq-api-key"
-      type="text"
-      placeholder="Paste your secret token..."
-      bind:value={GROQ_API_KEY}
-      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-    >
-    <div class="secret-mask hidden">● ● ● ● ● ● ● ● ●</div>
+  <div use:initTooltip={() => ({ children: apiKeyTooltip, ...apiKeyTooltipProps })}>
+    <label for="groq-api-key">Groq API key</label>
+    <div class="field" class:secret={Boolean(GROQ_API_KEY)}>
+      <input
+        class="secret"
+        id="groq-api-key"
+        type="text"
+        placeholder="Paste your secret token..."
+        bind:value={GROQ_API_KEY}
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+      >
+      <div class="secret-mask hidden">● ● ● ● ● ● ● ● ●</div>
+    </div>
   </div>
 
-  <label class="mt-3" for="video-file">Drop video</label>
+  <label class="mt-3 cursor-pointer" for="video-file">Drop video</label>
   <DropZone
     icon={VideoFileIcon}
-    promise={audioChunksPromise}
+    promise={audioPromise}
     clickText="Select video"
     subheading="Any file containing audio should work"
     for="video-file"
   >
-    <input bind:files={files} id="video-file" type="file" name="video-file" class="sr-only">
+    <input
+      bind:files={files}
+      type="file"
+      id="video-file" name="video-file"
+      class="sr-only"
+    >
     {#snippet loading()}
       <div class="text-indigo-500">
         <TextLoader messages={[
@@ -159,7 +197,8 @@
     {#snippet loaded(result: ProcessVideoResult)}
       <audio class="w-full" controls src={URL.createObjectURL(result?.preview.blob)}></audio>
       <p class="pt-1 text-xs text-center text-gray-600">
-        Grabbed audio from your video
+        <!-- Grabbed audio from your video -->
+        Grabbed audio from {@render fileNamePreview?.()}
         <br>
         with <span class="text-indigo-500 font-mono font-bold">ffmpeg.wasm</span>
       </p>
@@ -183,14 +222,14 @@
 
   <div class="mt-6 -ml-3.5">
     <div class="ml-0.5 flex items-center">
-      <BigButton onclick={onclick}>
+      <BigButton {onclick}>
         {#snippet icon()}
           <div class="opacity-90 transform scale-[1.3] translate-y-[-5%] translate-x-[-10%] relative">
-            <div class:opacity-0={Boolean(resultPromise) && !finishedGenerating}>
+            <div class:opacity-0={Boolean(generationPromise) && !finishedGenerating}>
               <GenerateIcon width="1.2em" />
             </div>
-            {#if resultPromise}
-              {#await resultPromise}
+            {#if generationPromise}
+              {#await generationPromise}
                 <!-- <div class="absolute inset-0 transform scale-[0.45] translate-y-[-3%] translate-x-[-12%] grid place-items-center">
                   <l-jelly-triangle
                     size="30"
@@ -232,8 +271,8 @@
             Generate Chapters
           {/snippet}
 
-          {#if resultPromise}
-            {#await resultPromise}
+          {#if generationPromise}
+            {#await generationPromise}
               <span class="mr-1.5">
                 Generating
                 <!-- <span class="opacity-80 ml-0.5">
@@ -259,17 +298,17 @@
         </span>
       </BigButton>
       
-      {#if resultPromise && !finishedGenerating}
+      <!-- {#if generationPromise && !finishedGenerating}
         <div class="inline-block -ml-1.5">
-          <StopButton onclick={(e: MouseEvent)=>e.preventDefault()} />
+          <StopButton onclick={(e: MouseEvent)=>{e.preventDefault()}} />
         </div>
-      {/if}
+      {/if} -->
 
     </div>
   </div>
-  {#if resultPromise}
+  {#if generationPromise}
     <div class="ml-1">
-      {#await resultPromise}
+      {#await generationPromise}
         <div class="mt-6 -ml-2 text-indigo-500">
           <l-mirage
             size="120"
@@ -277,9 +316,33 @@
             color="currentColor" 
           ></l-mirage>
         </div>
-      {:then}
-        <div>
-          Test
+      {:then [whisperChunks, chapters]}
+        <div class="resultPane mt-8 relative">
+          <button
+            class="absolute top-4 right-4"
+            bind:this={copyTrigger}
+            onclick={(e: MouseEvent) => {
+              e.preventDefault()
+              
+            }}
+          >
+            Copy
+          </button>
+          <ul
+            use:copy={{ trigger: copyTrigger }}
+            oncopied={(e: CustomEvent<CopyDetail>) => {
+              // toast.success(`Copied your chapters: ${e.detail.text.substring(0,10)}...`)
+              toast.success(`Copied your chapters`)
+            }}
+          >
+            {#each chapters as chapter}
+              <li class="font-medium leading-snug text-sm">
+                <span class="text-indigo-500 font-semibold">{chapter.timestamp}</span>
+                &#45;
+                <span>{chapter.title}</span>
+              </li>
+            {/each} 
+          </ul>
         </div>
       {/await}
     </div>
@@ -364,4 +427,25 @@
 		@apply text-sm text-gray-400;
 		@apply dark:text-gray-700;
 	}
+
+  .resultPane {
+    @apply shadow-lg shadow-[#21119320];
+    @apply p-4 rounded-2xl;
+    @apply outline-1 outline-gray-300;
+    /* @apply bg-[white]; */
+    background: linear-gradient(
+      --alpha(white / 100%) 0.1rem,
+      --alpha(white / 60%) 1.5rem,
+      --alpha(white / 40%) 100%
+    );
+  }
+
+  button {
+    @apply text-sm font-bold tracking-tighter;
+    @apply py-1 px-2 rounded-lg;
+    @apply cursor-pointer outline-1;
+    @apply bg-white outline-gray-300 text-gray-500;
+    @apply hover:outline-gray-400 hover:text-gray-800;
+    @apply active:bg-gray-200 active:outline-gray-300 active:text-gray-900;
+  }
 </style>

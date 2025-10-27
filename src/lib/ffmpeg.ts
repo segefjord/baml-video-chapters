@@ -16,6 +16,9 @@ export interface AudioChunk {
 export interface ProcessVideoResult {
   preview: AudioData
   chunks: AudioChunk[]
+  metadata: {
+    duration: number
+  }
 }
 
 
@@ -101,7 +104,10 @@ export async function processVideo(videoURL: string): Promise<ProcessVideoResult
           start: 0,
           end: duration
         }
-      ]
+      ],
+      metadata: {
+        duration
+      }
     }
   }
   else {
@@ -133,7 +139,10 @@ export async function processVideo(videoURL: string): Promise<ProcessVideoResult
     }
     return {
       preview: fullAudio,
-      chunks: chunks
+      chunks: chunks,
+      metadata: {
+        duration
+      }
     }
   }
 }

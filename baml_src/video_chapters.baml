@@ -5,6 +5,7 @@ class VideoChapter {
   chapter_title string @description(#"
     Very short title. 4 words maximum.
     Avoid stating the obvious - for example if the video is about cars, don't make the title "Wheels on cars" you can simply make it "Wheels" then.
+    And avoid redundant "and" clauses like "Intro & greeting", this should just be "Greetings". Of course there could be exceptions where an "&"/"and" makes sense, but just make sure it's not redundant.
   "#)
   bookmark int @description("The T value as an int, e.g. T=342 -> 342")
 }
@@ -15,8 +16,8 @@ class VideoChaptersResponse {
 }
 
 
-function FindChapters(context: string, instructions: string, video_part: string) -> VideoChaptersResponse {
-  client GROQ_GPT_20B
+function FindChapters(context: string, instructions: string, transcript: string?) -> VideoChaptersResponse {
+  client GROQ_GPT_120B
   prompt #"
     {{ _.role('system') }}
     # Background
@@ -31,9 +32,11 @@ function FindChapters(context: string, instructions: string, video_part: string)
     {{ _.role('user') }}
     {{ instructions }}
 
-    {{ _.role('user') }}
-    # I just wrote down what was said in a part of the video I watched
-    {{ video_part }}
+    {% if transcript %}
+      {{ _.role('user') }}
+      # I just wrote down what was said in a part of the video I watched
+      {{ transcript }}
+    {% endif %}
 
     {{ _.role('system') }}
     # Output format:
@@ -53,7 +56,7 @@ test summarizationChapters {
       # User query
       Suggest 3 chapters
     "#
-    video_part #"
+    transcript #"
       Video-part duration: 732 seconds
       From T=400 to T=649:
       ```

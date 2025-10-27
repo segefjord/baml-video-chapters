@@ -1,4 +1,12 @@
-<script>
+<script lang="ts" module>
+  let idCounter = 0
+</script>
+
+<script lang="ts">
+  import { registeredDropZones } from './DropZonePage.svelte'
+  
+  const id = idCounter++
+
   let props = $props()
   let { children, clickText, subheading, loading, loaded } = props
 </script>
@@ -13,7 +21,7 @@
   </div>
 {/snippet}
 
-<div class="border relative">
+<div class="border relative" bind:this={registeredDropZones[id]}>
   <div class="text-center" class:opacity-0={props?.promise}>
     <div class="icon">
       <props.icon />

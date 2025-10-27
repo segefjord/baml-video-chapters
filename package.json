@@ -28,10 +28,14 @@
 		"@ffmpeg/util": "^0.12.2",
 		"@hazycora/vite-plugin-svelte-svg": "^2.4.3",
 		"@macfja/svelte-persistent-runes": "^1.1.0",
+		"@svelte-put/copy": "^4.0.0",
 		"dedent": "^1.7.0",
 		"dotenv": "^17.2.3",
 		"groq-sdk": "^0.33.0",
 		"ldrs": "^1.1.7",
-		"mime": "^4.1.0"
+		"mime": "^4.1.0",
+		"runed": "^0.35.1",
+		"svelte-pops": "^0.1.5",
+		"svelte-sonner": "^1.0.5"
 	}
 }

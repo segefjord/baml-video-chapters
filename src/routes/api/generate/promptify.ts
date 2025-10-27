@@ -1,7 +1,7 @@
 import Groq from 'groq-sdk'
 import dedent from 'dedent'
 
-export function promptifySegment(segments: Groq.Audio.TranscriptionSegment[]): string {
+export function promptifySegments(segments: Groq.Audio.TranscriptionSegment[]): string {
   if (segments.length < 1) ""
   const first = segments[0]
   const last = segments[segments.length-1]

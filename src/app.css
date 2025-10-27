@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@source "../node_modules/svelte-pops/";
 
 html {
   background: #e9f2f6;
@@ -6,4 +7,27 @@ html {
   /* https://grabient.com/HQJgnArANKk+1gGYIBYZKQdg0kMA2ARiJggA5yywCpVgwskojhyQqlgtig?style=linearGradient&steps=7&angle=90 */
 
   /* background: linear-gradient(90deg, rgba(164, 116, 81, 1.000) 0.000%, rgba(156, 152, 129, 1.000) 16.667%, rgba(115, 160, 157, 1.000) 33.333%, rgba(59, 137, 154, 1.000) 50.000%, rgba(9, 91, 121, 1.000) 66.667%, rgba(0, 40, 71, 1.000) 83.333%, rgba(0, 1, 22, 1.000) 100.000%) */
+}
+
+.dropZoneBackdrop {
+  cursor: auto;
+}
+
+.dropZoneBackdrop:hover {
+  filter: brightness(1) !important;
+  background: rgba(255,255,255, 0.55) !important;
+}
+
+
+.toaster {
+  border-radius: var(--radius-2xl) !important;
+  box-shadow: var(--shadow-xl) !important;
+  padding-left: 1.2rem !important;
+}
+ol[data-sonner-toaster] {
+  transform: scale(1.1) translateX(-46%) !important;
+}
+
+ol[data-sonner-toaster] li *[data-icon] {
+  transform: scale(1.2) !important;
 }

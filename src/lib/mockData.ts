@@ -1,3 +1,81 @@
+import type { Chapter } from '../routes/api/generate/types'
+
+export const chapters: Chapter[] = [
+	{ timestamp: "0:00",
+		title: "Intro & Manus"
+	},
+	{ timestamp: "3:44",
+		title: "KV Cache Deep"
+	},
+	{ timestamp: "14:03",
+		title: "Cache Control"
+	},
+	{ timestamp: "23:29",
+		title: "Eval & Optim"
+	},
+	{ timestamp: "32:40",
+		title: "Cache Control Mechanics"
+	},
+	{ timestamp: "36:15",
+		title: "Prompt Injection"
+	},
+	{ timestamp: "50:28",
+		title: "Context Compression"
+	},
+	{ timestamp: "54:56",
+		title: "Tool Call Nuances"
+	},
+]
+
+import type { VideoChaptersResponse } from '$lib/baml_client'
+
+export const baml: VideoChaptersResponse = {
+	"summary": "Dex and Viob unpack the Manus paper’s context‑engineering breakthroughs, focusing on KV caching, dynamic content placement, provider cache mechanics, evaluation strategies, and advanced tool‑calling and compression techniques. They explain how to keep cache hits, the trade‑offs of dynamic system messages and tool lists, and discuss practical steps for implementing and testing caching in real‑world pipelines.",
+	"chapters": [
+			{
+					"summay": "Hosts introduce the episode, explain why deep understanding of LLM internals matters, and preview the Manus paper.",
+					"chapter_title": "Intro & Manus Overview",
+					"bookmark": 0
+			},
+			{
+					"summay": "Detailed walk‑through of KV caching: transformer reuse, alignment limits, and internal architecture.",
+					"chapter_title": "KV Cache Foundations",
+					"bookmark": 154
+			},
+			{
+					"summay": "Dynamic elements like system messages or tool lists break KV continuity; best practices for positioning them to preserve cache hits.",
+					"chapter_title": "Dynamic Context Effects",
+					"bookmark": 250
+			},
+			{
+					"summay": "Provider‑side caching, TTLs, cross‑user isolation, and the trade‑off between manual control and provider handling.",
+					"chapter_title": "Provider Cache Rules",
+					"bookmark": 380
+			},
+			{
+					"summay": "Practical evaluation: defining quality, measuring speed and cost, and how to test cache effectiveness with headers or latency proxies.",
+					"chapter_title": "Evaluation & Testing",
+					"bookmark": 470
+			},
+			{
+					"summay": "Placement of the cache‑control block in prompts and its impact on cache hits for self‑hosted vs API deployments.",
+					"chapter_title": "Cache‑Control Placement",
+					"bookmark": 609
+			},
+			{
+					"summay": "Tool‑calling strategies, constrained decoding, function‑calling token manipulation, and avoiding token‑boundary pitfalls.",
+					"chapter_title": "Tool‑Calling Tricks",
+					"bookmark": 1053
+			},
+			{
+					"summay": "Compressing long contexts with restorable data blobs, injecting URLs instead of full docs, and balancing tool calls with token limits.",
+					"chapter_title": "Compression & Blobs",
+					"bookmark": 935
+			}
+	]
+}
+
+
 import Groq from 'groq-sdk'
 
 export const whisper: Groq.Audio.Transcription[] = [

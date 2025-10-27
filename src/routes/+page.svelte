@@ -1,5 +1,9 @@
 <script lang="ts">
   import MainForm from "$lib/MainForm.svelte"
+  import DropZonePage from "$lib/components/DropZonePage.svelte"
+  import { Toaster, toast } from 'svelte-sonner'
+  import { initModalContext } from 'svelte-pops'
+	initModalContext()
 
   interface TechItem {
     img: string
@@ -16,6 +20,11 @@
     { img: '/logos/meta.svg', alt: 'Meta AI', size: 68, space: 0.25 },
   ]
 </script>
+
+<Toaster position="bottom-center" richColors toastOptions={{
+  class: 'toaster'
+}}/>
+<DropZonePage />
 
 <main>
   <div class="card">
