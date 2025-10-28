@@ -1,15 +1,25 @@
 // middleware.js
-import { NextResponse } from 'next/server'
-
 export const config = {
-  // match your generated worker files
   matcher: '/_app/immutable/workers/:path*',
-};
+}
 
-export function middleware(req) {
-  const res = NextResponse.next()
-  res.headers.set('Cross-Origin-Opener-Policy', 'same-origin')
-  res.headers.set('Cross-Origin-Embedder-Policy', 'require-corp')
-  res.headers.set('Cross-Origin-Resource-Policy', 'cross-origin')
-  return res
+/**
+ * Runs in Vercel Edge Runtime
+ * @param {Request} request
+ */
+export default async function middleware(request) {
+  // Clone the original request and forward it
+  const res = await fetch(request);
+
+  // Clone the response so we can modify headers
+  const newHeaders = new Headers(res.headers);
+  newHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
+  newHeaders.set('Cross-Origin-Embedder-Policy', 'require-corp');
+  newHeaders.set('Cross-Origin-Resource-Policy', 'cross-origin');
+
+  return new Response(res.body, {
+    status: res.status,
+    statusText: res.statusText,
+    headers: newHeaders,
+  });
 }
