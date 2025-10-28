@@ -42,17 +42,4 @@ export default defineConfig({
 	optimizeDeps: {
     exclude: ["@ffmpeg/ffmpeg", "@ffmpeg/util"],
   },
-	build: {
-    rollupOptions: {
-      output: {
-        // Put emitted workers under /workers instead of /_app/immutable/workers
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.name?.includes('worker')) {
-            return 'workers/[name].[hash][extname]'
-          }
-          return '_app/immutable/assets/[name].[hash][extname]'
-        }
-      }
-    }
-  },
 });
