@@ -36,8 +36,8 @@ function returnAudio(data: FileData, container: string): AudioData {
 }
 
 
-// const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core-mt@0.12.10/dist/esm'
-const baseURL = '/ffmpeg'
+const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core-mt@0.12.10/dist/esm'
+// const baseURL = '/ffmpeg'
 
 export async function processVideo(videoURL: string): Promise<ProcessVideoResult> {
   const ffmpeg = new FFmpeg()
