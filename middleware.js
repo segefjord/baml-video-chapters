@@ -1,19 +1,18 @@
 // middleware.js
 export const config = {
   matcher: '/_app/immutable/workers/:path*',
-}
+};
 
 /**
- * Runs in Vercel Edge Runtime
- * @param {Request} request
+ * Vercel Edge Middleware that adds COEP/COOP headers.
  */
-export default async function middleware(request) {
-  // Clone the original request and forward it
-  const res = await fetch(request);
+export default async function middleware(req) {
+  console.log('MIDDLEWARE! running for', req.nextUrl.pathname);
 
-  console.log("MIDDLEWARE!")
+  // Let the asset pipeline handle the request normally,
+  // but wrap the response so we can modify headers.
+  const res = await fetch(req);
 
-  // Clone the response so we can modify headers
   const newHeaders = new Headers(res.headers);
   newHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
   newHeaders.set('Cross-Origin-Embedder-Policy', 'require-corp');
