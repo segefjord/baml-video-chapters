@@ -11,6 +11,8 @@ export default async function middleware(request) {
   // Clone the original request and forward it
   const res = await fetch(request);
 
+  console.log("MIDDLEWARE!")
+
   // Clone the response so we can modify headers
   const newHeaders = new Headers(res.headers);
   newHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
