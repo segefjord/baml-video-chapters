@@ -15,13 +15,17 @@
 
   import { onMount } from "svelte";
   onMount(async function() {
-    let { waveform, mirage, jellyTriangle, bouncy, dotSpinner, dotPulse } = await import('../../node_modules/ldrs/dist')
+    // let { waveform, mirage, jellyTriangle, bouncy, dotSpinner, dotPulse } = await import('../../node_modules/ldrs/dist')
+    // waveform.register()
+    // mirage.register()
+    // jellyTriangle.register()
+    // bouncy.register()
+    // dotSpinner.register()
+    // dotPulse.register()
+    let { waveform, mirage, dotSpinner } = await import('../../node_modules/ldrs/dist')
     waveform.register()
     mirage.register()
-    jellyTriangle.register()
-    bouncy.register()
     dotSpinner.register()
-    dotPulse.register()
   })
 
   import DropZone from "$lib/components/DropZone.svelte"
@@ -33,7 +37,7 @@
   import VideoFileIcon from '$lib/assets/icons/solar/media/video-playlist.svg?component'
   import UploadFileIcon from '$lib/assets/icons/solar/upload.svg?component'
 
-  import StopButton from '$lib/components/StopButton.svelte'
+  // import StopButton from '$lib/components/StopButton.svelte'
 
   import type { Chapter } from '../routes/api/generate/types'
   
