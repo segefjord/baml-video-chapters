@@ -23,6 +23,16 @@
   const GHLINK = 'https://github.com/segefjord/baml-video-chapters'
 </script>
 
+<svelte:head>
+  <title>AI Video Chapters</title>
+  <meta property="og:title" content="AI Video Chapters - Powered by BAML" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/meta/ai-chapters.webp" />
+  <meta property="og:site_name" content="Vercel" />
+  <meta property="og:description" 
+  content="Upload your media file, bring your own API key and let AI generate high-quality " />
+</svelte:head>
+
 <Toaster position="bottom-center" richColors toastOptions={{
   class: 'toaster'
 }}/>
