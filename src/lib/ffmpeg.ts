@@ -3,9 +3,9 @@
 
 import { type FileData } from '@ffmpeg/ffmpeg'
 // @ts-ignore
-const { FFmpeg } = await import('/@ffmpeg/ffmpeg');
+const { FFmpeg } = await import('https://ai-chapters.vercel.app/@ffmpeg/ffmpeg');
 // @ts-ignore
-const { fetchFile, toBlobURL } = await import('/@ffmpeg/util');
+const { fetchFile, toBlobURL } = await import('https://ai-chapters.vercel.app/@ffmpeg/util');
 
 import mime from 'mime'
 
