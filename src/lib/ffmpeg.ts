@@ -1,11 +1,11 @@
 // import { FFmpeg, type FileData } from '@ffmpeg/ffmpeg'
-// import { fetchFile, toBlobURL } from '@ffmpeg/util'
+// import { fetchFile, toBlobURL } from '@ffmpewg/util'
 
 import { type FileData } from '@ffmpeg/ffmpeg'
 // @ts-ignore
-const { FFmpeg } = await import('https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/+esm');
+const { FFmpeg } = await import('/@ffmpeg/ffmpeg');
 // @ts-ignore
-const { fetchFile, toBlobURL } = await import('https://cdn.jsdelivr.net/npm/@ffmpeg/util@latest/+esm');
+const { fetchFile, toBlobURL } = await import('/@ffmpeg/util');
 
 import mime from 'mime'
 
@@ -43,8 +43,8 @@ function returnAudio(data: FileData, container: string): AudioData {
 }
 
 
-const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core-mt@0.12.10/dist/esm'
-// const baseURL = '/ffmpeg'
+// const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core-mt@0.12.10/dist/esm'
+const baseURL = '/ffmpeg'
 
 export async function processVideo(videoURL: string): Promise<ProcessVideoResult> {
   const ffmpeg = new FFmpeg()
