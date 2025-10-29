@@ -70,7 +70,8 @@ export async function processVideo(videoURL: string): Promise<ProcessVideoResult
   let [hours, minutes, seconds] = duration.split(',')[0].split('Duration')[1].split(':').filter(Boolean).map((x: string) => parseFloat(x.trim()))
   duration = (hours*60*60) + (minutes*60) + seconds/60 // seconds duration
   
-  audioCodec = audioCodec?.split('Audio: ')[1].split(' ')[0]
+  console.log("audioCodec", audioCodec)
+  audioCodec = audioCodec?.split('Audio: ')[1].split(' ')[0].split(',')[0].trim()
   if(!audioCodec?.split) throw new Error("No audio found")
   let container = ({
     aac: 'm4a',
@@ -85,6 +86,8 @@ export async function processVideo(videoURL: string): Promise<ProcessVideoResult
     ac3: 'ac3',
     eac3: 'ac3',
   } as Record<string, string>)[audioCodec as string]
+
+  console.log("audioCodec", `"${audioCodec}"`, container)
 
 
   await ffmpeg.exec([
