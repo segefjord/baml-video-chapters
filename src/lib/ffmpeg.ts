@@ -1,5 +1,5 @@
 // import { FFmpeg, type FileData } from '@ffmpeg/ffmpeg'
-// import { fetchFile, toBlobURL } from '@ffmpewg/util'
+// import { fetchFile, toBlobURL } from '@ffmpeg/util'
 
 import { type FileData } from '@ffmpeg/ffmpeg'
 // @ts-ignore

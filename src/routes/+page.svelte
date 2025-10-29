@@ -19,6 +19,8 @@
     { img: '/logos/openai.svg', alt: 'OpenAI', size: 85, space: 0.24 },
     { img: '/logos/meta.svg', alt: 'Meta AI', size: 68, space: 0.25 },
   ]
+
+  const GHLINK = 'https://github.com/segefjord/baml-video-chapters'
 </script>
 
 <Toaster position="bottom-center" richColors toastOptions={{
@@ -26,7 +28,14 @@
 }}/>
 <DropZonePage />
 
-<main>
+<main class="relative">
+  <div class="hidden sm:block absolute top-12 left-5">
+    <a href={GHLINK} target="_blank" draggable="false">
+      <button class="gh-button">
+        <img width="100%" src="/logos/github.svg" alt="github">
+      </button>
+    </a>
+  </div>
   <div class="card">
     <header class="text-gray-800">
       <div class="flex items-center">
@@ -69,6 +78,19 @@
     <MainForm />
   </div>
 </main>
+<footer class="text-center font-mono text-sm text-gray-500 py-8">
+  <div>
+    I'm looking for opportunities
+  </div>
+  <div class="text-indigo-500">
+    jonathan@segefjord.space
+  </div>
+  <div class="block sm:hidden sm:mt-0 mt-5">
+    <a href={GHLINK} target="_blank" draggable="false">
+      GitHub Repo (source code)
+    </a>
+  </div>
+</footer>
 
 <style lang="postcss">
   @reference 'tailwindcss';
@@ -85,6 +107,10 @@
       --alpha(white / 50%) calc(100% - 4rem),
       --alpha(white / 60%) 100%
     );
+  }
+
+  .gh-button {
+    @apply bg-[white]/50 hover:bg-[white]/80 rounded-2xl w-12 p-2 cursor-pointer;
   }
 
 </style>
