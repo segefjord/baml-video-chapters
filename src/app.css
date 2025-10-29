@@ -22,12 +22,12 @@ html {
 .toaster {
   border-radius: var(--radius-2xl) !important;
   box-shadow: var(--shadow-xl) !important;
-  padding-left: 1.2rem !important;
+  /* padding-left: 1.2rem !important; */
 }
 ol[data-sonner-toaster] {
   transform: scale(1.1) translateX(-46%) !important;
 }
 
-ol[data-sonner-toaster] li *[data-icon] {
-  transform: scale(1.2) !important;
-}
+/* ol[data-sonner-toaster] li *[data-icon] {
+  transform: scale(1) !important;
+} */

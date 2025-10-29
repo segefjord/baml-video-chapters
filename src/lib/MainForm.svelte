@@ -35,7 +35,8 @@
   import BigButton from '$lib/components/BigButton.svelte'
   import GenerateIcon from '$lib/assets/icons/solar/media/clapperboard.svg?component'
   import VideoFileIcon from '$lib/assets/icons/solar/media/video-playlist.svg?component'
-  import UploadFileIcon from '$lib/assets/icons/solar/upload.svg?component'
+  // import UploadFileIcon from '$lib/assets/icons/solar/upload.svg?component'
+  import UploadFileIcon from '$lib/assets/icons/Upload.svelte'
 
   // import StopButton from '$lib/components/StopButton.svelte'
 
