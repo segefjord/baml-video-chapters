@@ -4,6 +4,7 @@ export default function chunkSegments(
   segments: Groq.Audio.TranscriptionSegment[],
   N=200, overlap=50
 ): (Groq.Audio.TranscriptionSegment[])[] {
+  if(segments.length <= N+overlap) return [segments]
   const segmentChunks = []
   for (let i=0; i<segments.length-N; i+=N) {
     segmentChunks.push(
