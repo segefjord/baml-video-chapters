@@ -30,7 +30,7 @@
   <meta property="og:image" content="/meta/ai-chapters.webp" />
   <meta property="og:site_name" content="Vercel" />
   <meta property="og:description" 
-  content="Upload your media file, bring your own API key and let AI generate high-quality " />
+  content="Upload your media file, bring your own API key and let AI generate high-quality chapters." />
 </svelte:head>
 
 <Toaster position="bottom-center" richColors toastOptions={{
