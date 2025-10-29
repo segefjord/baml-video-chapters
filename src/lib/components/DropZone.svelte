@@ -57,7 +57,6 @@
 		@apply px-6 pt-6 pb-6.5;
 		@apply flex justify-center;
 		@apply rounded-2xl border-1 border-dashed border-gray-900/25;
-		@apply dark:border-white/25;
     /* @apply bg-white/40; */
     background: linear-gradient(
       --alpha(white / 90%) 0%,
@@ -68,21 +67,19 @@
 
 	.icon {
 		@apply text-gray-300;
-		@apply mx-auto size-12 dark:text-gray-600;
+		@apply mx-auto size-12;
 	}
 
 	.title {
 		@apply text-sm/6 text-gray-600;
-		@apply dark:text-gray-400;
 	}
 
 	.clickText {
 		@apply bg-transparent text-indigo-600;
-		@apply relative cursor-pointer rounded-md font-semibold focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:focus-within:outline-indigo-500 dark:hover:text-indigo-300;
+		@apply relative cursor-pointer rounded-md font-semibold focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-indigo-600 hover:text-indigo-500;
 	}
 
 	.subheading {
 		@apply text-xs/5 text-gray-600;
-		@apply dark:text-gray-400;
 	}
 </style>

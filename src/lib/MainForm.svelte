@@ -366,20 +366,20 @@
   label {
     @apply ml-1 mb-1;
     @apply text-sm/6 text-gray-900;
-		@apply block font-semibold dark:text-white;
+		@apply block font-semibold;
   }
 
   input {
     @apply block min-w-0 py-1.5 pr-3 pl-1;
 		@apply text-base text-gray-900;
-		@apply grow placeholder:text-gray-400 focus:outline-none sm:text-sm/6 dark:bg-transparent dark:text-white dark:placeholder:text-gray-500;
+		@apply grow placeholder:text-gray-400 focus:outline-none sm:text-sm/6;
   }
 
 
   .field {
     @apply flex items-center;
 		@apply pl-3 -outline-offset-1;
-		@apply rounded-lg outline-1 outline-gray-300 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600 dark:bg-white/5 dark:outline-white/10 dark:focus-within:outline-indigo-500;
+		@apply rounded-lg outline-1 outline-gray-300 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600;
     background: linear-gradient(
       --alpha(white / 100%) 20%,
       --alpha(white / 40%) 100%
@@ -436,7 +436,6 @@
 
 	.explainerText {
 		@apply text-sm text-gray-400;
-		@apply dark:text-gray-700;
 	}
 
   .resultPane {
