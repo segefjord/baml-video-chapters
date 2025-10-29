@@ -41,7 +41,13 @@
 
   import type { Chapter } from '../routes/api/generate/types'
   
-  import { processVideo, type ProcessVideoResult} from "$lib/ffmpeg"
+  // import { processVideo, type ProcessVideoResult} from "$lib/ffmpeg"
+  import { type ProcessVideoResult} from "$lib/ffmpeg"
+  let processVideo: ((videoURL: string) => Promise<ProcessVideoResult>) | undefined 
+  onMount(async function () {
+    const module = await import('$lib/ffmpeg')
+    processVideo = module.processVideo
+  })
 
   // -------------------------------------------------------------------
 
@@ -59,7 +65,7 @@
   })
 
   let audioPromise = $derived.by(function() {
-    if(files) {
+    if(files && processVideo) {
       for (const videoFile of files) {
         const blobURL = URL.createObjectURL(videoFile)
         return processVideo(blobURL)

@@ -1,5 +1,12 @@
-import { FFmpeg, type FileData } from '@ffmpeg/ffmpeg'
-import { fetchFile, toBlobURL } from '@ffmpeg/util'
+// import { FFmpeg, type FileData } from '@ffmpeg/ffmpeg'
+// import { fetchFile, toBlobURL } from '@ffmpeg/util'
+
+import { type FileData } from '@ffmpeg/ffmpeg'
+// @ts-ignore
+const { FFmpeg } = await import('https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/+esm');
+// @ts-ignore
+const { fetchFile, toBlobURL } = await import('https://cdn.jsdelivr.net/npm/@ffmpeg/util@latest/+esm');
+
 import mime from 'mime'
 
 export interface AudioData {
@@ -45,7 +52,7 @@ export async function processVideo(videoURL: string): Promise<ProcessVideoResult
   let logging = false
   let duration: any = null
   let audioCodec: any = null
-  ffmpeg.on('log', ({ message }) => {
+  ffmpeg.on('log', ({ message }: {message: string}) => {
     if(logging) console.log(message)
     if (!duration && message.includes('Duration')) duration = message
     if (!audioCodec && message.includes('Audio')) audioCodec = message
